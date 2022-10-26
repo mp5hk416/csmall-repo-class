@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.mall.order.mapper.OmsCartMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.tedu.mall.pojo.order.model.OmsCart">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="sku_id" property="skuId" />
+        <result column="title" property="title" />
+        <result column="main_picture" property="mainPicture" />
+        <result column="price" property="price" />
+        <result column="quantity" property="quantity" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="bar_code" property="barCode"/>
+        <result column="data" property="data"/>
+    </resultMap>
+
+    <sql id="simpleQueryFields">
+        <if test="true">
+            id,user_id,sku_id,title,main_picture,price,quantity,gmt_create,gmt_modified
+        </if>
+    </sql>
+
+    <select id="selectExistsCart" resultMap="BaseResultMap">
+        SELECT <include refid="simpleQueryFields"/> FROM oms_cart WHERE user_id = #{userId} AND sku_id = #{skuId}
+    </select>
+
+    <insert id="SaveCart" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO oms_cart (
+        user_id,
+        sku_id,
+        title,
+        main_picture,
+        price,
+        quantity
+        ) VALUES (
+        #{userId},
+        #{skuId},
+        #{title},
+        #{mainPicture},
+        #{price},
+        #{quantity}
+        )
+    </insert>
+
+    <update id="updateQuantityById">
+        UPDATE oms_cart SET quantity = #{quantity} WHERE id = #{id}
+    </update>
+
+<!-- 根菌用戶id查找信息-->
+    <select id="selectCartsByUserId" resultType="cn.tedu.mall.pojo.order.vo.CartStandardVO">
+        SELECT <include refid="simpleQueryFields"/>
+        FROM oms_cart WHERE user_id = #{userId}
+    </select>
+
+<!--    根據id數組刪除購物車信息-->
+<!--    collection = ids 或是 array-->
+    <delete id="deleteCartsByIds">
+        DELETE FROM oms_cart WHERE id in <foreach collection="ids" item="id" separator="," open="(" close=")">
+        #{id}
+    </foreach>
+    </delete>
+
+<!--    清空指定用戶購物車中所有商品-->
+    <delete id="deleteCartByUserId">
+        DELETE FROM oms_cart WHERE user_id=#{userId}
+    </delete>
+
+<!--    根據用戶id跟商品skuid刪除商品-->
+    <delete id="deleteCartByUserIdAndSkuId">
+        DELETE FROM oms_cart WHERE user_id=#{userId} AND sku_id=#{skuId}
+    </delete>
+
+</mapper>
+
+
+
+
